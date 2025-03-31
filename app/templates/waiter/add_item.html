@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавление позиций в заказ{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Добавление позиций в заказ #{{ order.id }}</h1>
+    <a href="{{ url_for('waiter.order_details', order_id=order.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Вернуться к заказу
+    </a>
+</div>
+
+<div class="row">
+    <!-- Форма добавления -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Добавление позиции</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('waiter.add_items', order_id=order.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.menu_item_id.label(class="form-label") }}
+                        {{ form.menu_item_id(class="form-select") }}
+                        {% for error in form.menu_item_id.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.quantity.label(class="form-label") }}
+                        {{ form.quantity(class="form-control", type="number", min=1, max=20) }}
+                        {% for error in form.quantity.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" name="add_more" value="1" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Добавить и продолжить
+                        </button>
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Текущие позиции заказа -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Текущие позиции заказа</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% if order.items %}
+                        {% set total = [0] %}
+                        {% for item in order.items %}
+                            {% set item_total = item.menu_item.price * item.quantity %}
+                            {% if total.append(total.pop() + item_total) %}{% endif %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ item.menu_item.name }}</strong>
+                                    <div class="text-muted small">{{ item.menu_item.price }} ₽ x {{ item.quantity }}</div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">{{ item_total }} ₽</span>
+                            </li>
+                        {% endfor %}
+                        
+                        <!-- Итоговая сумма -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                            <div>ИТОГО:</div>
+                            <span class="badge bg-success rounded-pill">{{ total[0] }} ₽</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item text-center text-muted">В заказе пока нет позиций</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

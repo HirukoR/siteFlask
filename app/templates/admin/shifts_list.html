@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Список смен{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Список смен</h1>
+    <a href="{{ url_for('admin.add_shift') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Создать смену
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th data-sort>ID</th>
+                        <th data-sort>Дата</th>
+                        <th data-sort>Время</th>
+                        <th data-sort>Статус</th>
+                        <th>Сотрудники</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shift in shifts %}
+                    <tr>
+                        <td>{{ shift.id }}</td>
+                        <td>{{ shift.date.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ shift.start_time.strftime('%H:%M') }} - {{ shift.end_time.strftime('%H:%M') }}</td>
+                        <td>
+                            {% if shift.status == 'active' %}
+                            <span class="badge bg-success">Активна</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Завершена</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if shift.users %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for user in shift.users %}
+                                <span class="badge 
+                                    {% if user.role == 'admin' %}bg-danger
+                                    {% elif user.role == 'waiter' %}bg-primary
+                                    {% elif user.role == 'cook' %}bg-success
+                                    {% endif %}">
+                                    {{ user.full_name }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">Нет сотрудников</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin.edit_shift', shift_id=shift.id) }}" class="btn btn-sm btn-outline-primary btn-action" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

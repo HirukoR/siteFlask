@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - {{ super() }}{% endblock %}
+
+{% block styles %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 5rem 0;
+        position: relative;
+        overflow: hidden;
+        margin-top: -1.5rem;
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('/static/img/pattern.svg');
+        opacity: 0.1;
+        pointer-events: none;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+    
+    .hero-text {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        max-width: 600px;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .feature-card {
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        background-color: white;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 0;
+        background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        transition: height 0.5s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--card-shadow-hover);
+    }
+    
+    .feature-card:hover::before {
+        height: 100%;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--dark-color);
+    }
+    
+    .feature-text {
+        color: var(--gray-color);
+        margin-bottom: 1rem;
+    }
+    
+    .testimonial-section {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        padding: 5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonial-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        margin: 1rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+    }
+    
+    .testimonial-quote {
+        font-size: 1.1rem;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .testimonial-quote::before {
+        content: '"';
+        font-size: 4rem;
+        position: absolute;
+        top: -1.5rem;
+        left: -0.5rem;
+        color: var(--primary-color);
+        opacity: 0.2;
+    }
+    
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+    }
+    
+    .testimonial-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .testimonial-name {
+        font-weight: 600;
+    }
+    
+    .testimonial-role {
+        color: var(--gray-color);
+        font-size: 0.9rem;
+    }
+    
+    .cta-section {
+        padding: 5rem 0;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('/static/img/pattern.svg');
+        opacity: 0.1;
+        pointer-events: none;
+    }
+    
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-text {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+    
+    .cta-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background-color: white;
+        color: var(--primary-color);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .feature-card {
+            margin-bottom: 1rem;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Главный баннер -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 hero-content fade-in">
+                <h1 class="hero-title">Система управления кафе</h1>
+                <p class="hero-text">Эффективное решение для организации работы кафе, ресторана или любого заведения общественного питания. Управляйте заказами, персоналом и меню с легкостью.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти в систему
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="https://cdn.pixabay.com/photo/2017/03/27/14/53/cafe-2179028_1280.jpg" alt="Кафе" class="img-fluid rounded-3 fade-in" style="animation-delay: 0.2s; box-shadow: 0 15px 30px rgba(0,0,0,0.2);">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Секция возможностей -->
+<section class="py-5 mt-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3 zoom-in">Возможности системы</h2>
+            <p class="text-muted mx-auto fade-in" style="max-width: 700px;">Наша система предлагает полный набор инструментов для эффективного управления заведением общественного питания</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 fade-in" style="animation-delay: 0.1s">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3 class="feature-title">Управление персоналом</h3>
+                    <p class="feature-text">Эффективно управляйте персоналом, настраивайте роли и контролируйте доступ к системе.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 fade-in" style="animation-delay: 0.2s">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3 class="feature-title">Управление заказами</h3>
+                    <p class="feature-text">Создавайте и отслеживайте заказы в реальном времени, контролируйте их выполнение.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 fade-in" style="animation-delay: 0.3s">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3 class="feature-title">Управление меню</h3>
+                    <p class="feature-text">Легко добавляйте, редактируйте и управляйте позициями меню вашего заведения.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 fade-in" style="animation-delay: 0.4s">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="feature-title">Аналитика и отчеты</h3>
+                    <p class="feature-text">Получайте детальную статистику и аналитику по работе заведения и продажам.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Отзывы пользователей -->
+<section class="testimonial-section mt-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3 zoom-in">Отзывы наших клиентов</h2>
+            <p class="text-muted mx-auto fade-in" style="max-width: 700px;">Что говорят наши клиенты о работе с системой управления кафе</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 fade-in" style="animation-delay: 0.1s">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">Система значительно упростила процесс управления персоналом и контроля за выполнением заказов. Теперь мы тратим меньше времени на административные задачи.</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">АК</div>
+                        <div>
+                            <div class="testimonial-name">Анна Ковалева</div>
+                            <div class="testimonial-role">Управляющий кафе "Летний сад"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 fade-in" style="animation-delay: 0.2s">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">Наши повара теперь получают заказы гораздо быстрее, а официанты могут отслеживать статус блюд в реальном времени. Клиенты довольны скоростью обслуживания!</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">СП</div>
+                        <div>
+                            <div class="testimonial-name">Сергей Петров</div>
+                            <div class="testimonial-role">Владелец ресторана "Южный"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 fade-in" style="animation-delay: 0.3s">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">Аналитика помогает нам понять, какие блюда популярны, а какие нет. Мы оптимизировали меню и увеличили выручку на 25% всего за три месяца!</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">МС</div>
+                        <div>
+                            <div class="testimonial-name">Мария Сидорова</div>
+                            <div class="testimonial-role">Шеф-повар кафе "Вкусно и точка"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="cta-section mt-5">
+    <div class="container text-center">
+        <h2 class="cta-title zoom-in">Начните улучшать работу вашего заведения сегодня</h2>
+        <p class="cta-text mx-auto fade-in" style="animation-delay: 0.1s">Присоединяйтесь к сотням заведений, которые уже используют нашу систему для оптимизации своей работы и увеличения прибыли.</p>
+        <a href="{{ url_for('auth.login') }}" class="btn cta-btn bounce">
+            <i class="fas fa-rocket me-2"></i>Начать использовать
+        </a>
+    </div>
+</section>
+{% endblock %} 

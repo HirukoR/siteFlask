@@ -1,0 +1,54 @@
+<svg width="100%" height="100%" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#121212;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e1e1e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d1a34;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#8e24aa;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#121212;stop-opacity:0" />
+    </radialGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="1" />
+      <feDisplacementMap in="SourceGraphic" scale="5" />
+    </filter>
+  </defs>
+  
+  <!-- Базовый градиентный фон -->
+  <rect width="100%" height="100%" fill="url(#grad1)" />
+  
+  <!-- Радиальный градиент -->
+  <rect width="100%" height="100%" fill="url(#grad2)" />
+  
+  <!-- Декоративные элементы -->
+  <g opacity="0.05" filter="url(#noise)">
+    <rect width="100%" height="100%" fill="#8e24aa" />
+  </g>
+  
+  <!-- Декоративные линии -->
+  <g stroke="#8e24aa" stroke-width="1" opacity="0.1">
+    <line x1="0" y1="200" x2="1200" y2="200" />
+    <line x1="0" y1="400" x2="1200" y2="400" />
+    <line x1="0" y1="600" x2="1200" y2="600" />
+    
+    <line x1="200" y1="0" x2="200" y2="800" />
+    <line x1="400" y1="0" x2="400" y2="800" />
+    <line x1="600" y1="0" x2="600" y2="800" />
+    <line x1="800" y1="0" x2="800" y2="800" />
+    <line x1="1000" y1="0" x2="1000" y2="800" />
+  </g>
+  
+  <!-- Световые точки -->
+  <g fill="#8e24aa" opacity="0.2">
+    <circle cx="200" cy="200" r="3" />
+    <circle cx="400" cy="400" r="2" />
+    <circle cx="600" cy="200" r="4" />
+    <circle cx="800" cy="600" r="3" />
+    <circle cx="1000" cy="400" r="2" />
+    <circle cx="200" cy="600" r="3" />
+    <circle cx="600" cy="600" r="2" />
+    <circle cx="800" cy="200" r="3" />
+  </g>
+</svg>
+

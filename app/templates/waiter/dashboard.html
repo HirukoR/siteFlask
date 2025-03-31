@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель официанта{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Панель официанта</h1>
+
+{% if active_shift %}
+<div class="alert alert-success mb-4">
+    <div class="d-flex align-items-center">
+        <div class="me-3">
+            <i class="bi bi-clock-history fs-3"></i>
+        </div>
+        <div>
+            <h5 class="mb-1">Активная смена</h5>
+            <p class="mb-0">{{ active_shift.date.strftime('%d.%m.%Y') }} ({{ active_shift.start_time.strftime('%H:%M') }} - {{ active_shift.end_time.strftime('%H:%M') }})</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Карточка создания заказа -->
+    <div class="col-md-6">
+        <a href="{{ url_for('waiter.create_order') }}" class="text-decoration-none text-dark">
+            <div class="card dashboard-card text-center">
+                <div class="card-body">
+                    <i class="bi bi-plus-circle dashboard-icon text-primary"></i>
+                    <h5 class="card-title">Создать заказ</h5>
+                    <p class="card-text">Создание нового заказа для обслуживания клиента</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <!-- Карточка списка заказов -->
+    <div class="col-md-6">
+        <a href="{{ url_for('waiter.orders_list') }}" class="text-decoration-none text-dark">
+            <div class="card dashboard-card text-center">
+                <div class="card-body">
+                    <i class="bi bi-list-check dashboard-icon text-success"></i>
+                    <h5 class="card-title">Мои заказы</h5>
+                    <p class="card-text">Просмотр и управление вашими текущими заказами</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Текущие заказы в моей смене -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Мои заказы в текущей смене</h5>
+                <a href="{{ url_for('waiter.orders_list') }}" class="btn btn-sm btn-outline-primary">Показать все заказы</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Время</th>
+                                <th>Стол</th>
+                                <th>Статус</th>
+                                <th>Позиции</th>
+                                <th>Сумма</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if orders %}
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.created_at.strftime('%H:%M') }}</td>
+                                <td>{{ order.table_number }}</td>
+                                <td>
+                                    {% if order.status == 'new' %}
+                                    <span class="badge bg-primary">Новый</span>
+                                    {% elif order.status == 'in_progress' %}
+                                    <span class="badge bg-warning">В процессе</span>
+                                    {% elif order.status == 'completed' %}
+                                    <span class="badge bg-success">Завершен</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ order.items|length }}</span>
+                                    <div class="progress" style="height: 5px;">
+                                        {% set ready_count = order.items|selectattr('status', 'equalto', 'ready')|list|length %}
+                                        {% set total_count = order.items|length %}
+                                        
+                                        {% if total_count > 0 %}
+                                        <div class="progress-bar bg-success" style="width: {{ (ready_count / total_count) * 100 }}%"></div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% set total = 0 %}
+                                    {% for item in order.items %}
+                                        {% set total = total + (item.menu_item.price * item.quantity) %}
+                                    {% endfor %}
+                                    {{ total }} ₽
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('waiter.order_details', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Просмотр
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">У вас нет активных заказов в текущей смене</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <div class="d-flex align-items-center">
+        <div class="me-3">
+            <i class="bi bi-exclamation-triangle fs-3"></i>
+        </div>
+        <div>
+            <h5 class="mb-1">У вас нет активной смены</h5>
+            <p class="mb-0">Вы не можете создавать заказы, пока администратор не назначит вас на смену.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

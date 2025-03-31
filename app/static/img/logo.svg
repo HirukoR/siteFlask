@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9c27b0" />
+      <stop offset="100%" stop-color="#6a1b9a" />
+    </linearGradient>
+    <filter id="neonGlow" height="130%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="
+        1 0 0 0 0
+        0 1 0 0 0
+        0 0 1 0 0
+        0 0 0 20 -5" result="glow" />
+      <feComposite in="SourceGraphic" in2="glow" operator="over" />
+    </filter>
+    <filter id="neonSmallGlow" height="120%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="
+        1 0 0 0 0.6
+        0 1 0 0 0.2
+        0 0 1 0 0.7
+        0 0 0 15 -3" result="glow" />
+      <feComposite in="SourceGraphic" in2="glow" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Круглый контейнер с тёмным фоном -->
+  <circle cx="60" cy="60" r="55" fill="#121212" stroke="url(#neonGradient)" stroke-width="2" />
+  
+  <!-- Чашка кофе (основа) -->
+  <path d="M40 40 C40 40, 40 75, 60 75 C80 75, 80 40, 80 40 Z" fill="#1e1e1e" stroke="url(#neonGradient)" stroke-width="2" filter="url(#neonGlow)" />
+  
+  <!-- Ручка чашки -->
+  <path d="M80 50 C90 50, 95 55, 95 60 C95 65, 90 70, 80 70" fill="none" stroke="url(#neonGradient)" stroke-width="2" filter="url(#neonSmallGlow)" />
+  
+  <!-- Пар от кофе (неоновые волнистые линии) -->
+  <path d="M50 35 Q55 25, 60 35 Q65 45, 70 35" fill="none" stroke="url(#neonGradient)" stroke-width="1.5" filter="url(#neonSmallGlow)" />
+  <path d="M45 30 Q50 20, 55 30 Q60 40, 65 30" fill="none" stroke="url(#neonGradient)" stroke-width="1" filter="url(#neonSmallGlow)" opacity="0.8" />
+  <path d="M55 25 Q60 15, 65 25 Q70 35, 75 25" fill="none" stroke="url(#neonGradient)" stroke-width="1" filter="url(#neonSmallGlow)" opacity="0.6" />
+  
+  <!-- Блик на чашке (неоновая точка) -->
+  <circle cx="50" cy="55" r="3" fill="#9c27b0" filter="url(#neonSmallGlow)" />
+  
+  <!-- Текст: Кафе Система -->
+  <text x="60" y="95" font-family="'Poppins', sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="url(#neonGradient)" filter="url(#neonSmallGlow)">КАФЕ СИСТЕМА</text>
+</svg> 

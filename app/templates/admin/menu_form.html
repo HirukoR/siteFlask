@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if item %}Редактирование блюда{% else %}Добавление блюда{% endif %} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-section {
+        background-color: var(--darker-color);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        position: relative;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(142, 36, 170, 0.2);
+        overflow: hidden;
+    }
+    
+    .form-section:hover {
+        box-shadow: var(--card-shadow-hover), var(--neon-glow);
+        transform: translateY(-5px);
+    }
+    
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--purple-gradient);
+    }
+    
+    .form-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/static/img/backgrounds/dark-overlay.svg');
+        background-size: cover;
+        opacity: 0.05;
+        pointer-events: none;
+    }
+    
+    .form-header {
+        margin-bottom: 2rem;
+        color: white;
+        text-shadow: var(--neon-glow);
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-header i {
+        margin-right: 0.75rem;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .form-control, .form-select {
+        background-color: rgba(18, 18, 18, 0.8);
+        border: 1px solid rgba(142, 36, 170, 0.3);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 3px rgba(142, 36, 170, 0.25);
+        border-color: var(--primary-color);
+        background-color: rgba(18, 18, 18, 0.9);
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+    }
+    
+    .price-wrapper {
+        position: relative;
+    }
+    
+    .price-wrapper::before {
+        content: '₽';
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        z-index: 10;
+    }
+    
+    .price-wrapper .form-control {
+        padding-left: 2rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-submit {
+        background: var(--purple-gradient);
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 30px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--card-shadow-hover), var(--neon-glow);
+    }
+    
+    .btn-submit::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-submit:hover::after {
+        left: 100%;
+    }
+    
+    .btn-cancel {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.8rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .dish-icon {
+        font-size: 5rem;
+        color: var(--primary-color);
+        opacity: 0.1;
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 0;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.15;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.1;
+        }
+    }
+    
+    .dish-icon {
+        animation: pulse 3s infinite ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-header fade-in">
+    <h1>
+        <i class="fas fa-utensils me-2"></i>
+        {% if item %}Редактирование блюда{% else %}Добавление блюда{% endif %}
+    </h1>
+    <p>{% if item %}Измените информацию о существующем блюде{% else %}Добавьте новое блюдо в меню кафе{% endif %}</p>
+</section>
+
+<div class="form-container">
+    <form method="post" class="needs-validation" novalidate>
+        {{ form.csrf_token }}
+        
+        <div class="form-section zoom-in">
+            <h4 class="form-header"><i class="fas fa-info-circle"></i>Основная информация</h4>
+            
+            <div class="mb-4">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Введите название блюда", required=true) }}
+                {% if form.name.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                {{ form.price.label(class="form-label") }}
+                <div class="price-wrapper">
+                    {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), placeholder="0.00", required=true, type="number", min="0", step="0.01") }}
+                </div>
+                {% if form.price.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.price.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), placeholder="Добавьте описание блюда (необязательно)", rows=4) }}
+                {% if form.description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-save me-2"></i>Сохранить
+                </button>
+                <a href="{{ url_for('admin.menu_list') }}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i>Отмена
+                </a>
+            </div>
+            
+            <div class="dish-icon">
+                <i class="fas fa-utensils"></i>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Валидация формы на стороне клиента
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+        
+        // Эффект неонового свечения при фокусе на полях ввода
+        const formControls = document.querySelectorAll('.form-control');
+        
+        formControls.forEach(control => {
+            control.addEventListener('focus', function() {
+                this.closest('.form-section').classList.add('focused');
+            });
+            
+            control.addEventListener('blur', function() {
+                this.closest('.form-section').classList.remove('focused');
+            });
+        });
+    });
+</script>
+{% endblock %} 

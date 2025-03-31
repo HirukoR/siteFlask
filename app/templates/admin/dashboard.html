@@ -1,0 +1,591 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель управления - {{ super() }}{% endblock %}
+
+{% block styles %}
+<style>
+    .header-banner {
+        background: var(--purple-gradient);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow-hover);
+    }
+    
+    .header-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/static/img/backgrounds/dark-overlay.svg');
+        background-size: cover;
+        opacity: 0.2;
+        pointer-events: none;
+    }
+    
+    .header-banner h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header-banner p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        height: 100%;
+        background-color: var(--darker-color);
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(142, 36, 170, 0.2);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover), var(--neon-glow);
+    }
+    
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--purple-gradient);
+    }
+    
+    .stats-card .card-body {
+        padding: 1.5rem;
+        backdrop-filter: blur(5px);
+        z-index: 2;
+    }
+    
+    .stats-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        color: var(--primary-color);
+        opacity: 0.3;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1;
+    }
+    
+    .stats-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stats-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: white;
+        text-shadow: var(--neon-glow);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stats-change {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    .recent-activity-item {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(142, 36, 170, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .recent-activity-item:hover {
+        background-color: rgba(142, 36, 170, 0.05);
+    }
+    
+    .recent-activity-time {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+    }
+    
+    .activity-icon.bg-order {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    .activity-icon.bg-user {
+        background: linear-gradient(135deg, var(--success-color), var(--success-color-hover));
+    }
+    
+    .activity-icon.bg-shift {
+        background: linear-gradient(135deg, var(--warning-color), var(--warning-color-hover));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Заголовок панели -->
+<div class="header-banner fade-in">
+    <div class="d-flex align-items-center">
+        <div class="icon-wrapper me-3">
+            <i class="fas fa-tachometer-alt fa-3x"></i>
+        </div>
+        <div>
+            <h1>Панель управления</h1>
+            <p>Обзор деятельности кафе и ключевые метрики</p>
+        </div>
+    </div>
+</div>
+
+<!-- Карточки метрик -->
+<div class="row mb-4">
+    <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.1s">
+        <div class="stats-card h-100 zoom-in">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stats-title">Активные заказы</div>
+                        <div class="stats-value">{{ active_orders }}</div>
+                        {% if active_orders_change > 0 %}
+                            <div class="stats-change text-success"><i class="fas fa-arrow-up me-1"></i>{{ "%.1f"|format(active_orders_change) }}% с прошлой недели</div>
+                        {% elif active_orders_change < 0 %}
+                            <div class="stats-change text-danger"><i class="fas fa-arrow-down me-1"></i>{{ "%.1f"|format(active_orders_change|abs) }}% с прошлой недели</div>
+                        {% else %}
+                            <div class="stats-change text-muted">Без изменений с прошлой недели</div>
+                        {% endif %}
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.2s">
+        <div class="stats-card h-100 zoom-in">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stats-title">Официанты на смене</div>
+                        <div class="stats-value">{{ active_waiters }}</div>
+                        {% if waiters_change > 0 %}
+                            <div class="stats-change text-success"><i class="fas fa-arrow-up me-1"></i>{{ "%.1f"|format(waiters_change) }}% с прошлой недели</div>
+                        {% elif waiters_change < 0 %}
+                            <div class="stats-change text-danger"><i class="fas fa-arrow-down me-1"></i>{{ "%.1f"|format(waiters_change|abs) }}% с прошлой недели</div>
+                        {% else %}
+                            <div class="stats-change text-muted">Без изменений с прошлой недели</div>
+                        {% endif %}
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.3s">
+        <div class="stats-card h-100 zoom-in">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stats-title">Выручка за сегодня</div>
+                        <div class="stats-value">₽{{ today_revenue }}</div>
+                        {% if revenue_change > 0 %}
+                            <div class="stats-change text-success"><i class="fas fa-arrow-up me-1"></i>{{ "%.1f"|format(revenue_change) }}% с вчерашнего дня</div>
+                        {% elif revenue_change < 0 %}
+                            <div class="stats-change text-danger"><i class="fas fa-arrow-down me-1"></i>{{ "%.1f"|format(revenue_change|abs) }}% с вчерашнего дня</div>
+                        {% else %}
+                            <div class="stats-change text-muted">Без изменений с вчерашнего дня</div>
+                        {% endif %}
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-ruble-sign"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.4s">
+        <div class="stats-card h-100 zoom-in">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stats-title">Блюд в меню</div>
+                        <div class="stats-value">{{ menu_items_count }}</div>
+                        <div class="stats-change text-muted">Обновлено сегодня</div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Графики -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4 fade-in" style="animation-delay: 0.5s">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Динамика заказов</h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        За неделю
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartRangeDropdown">
+                        <li><a class="dropdown-item" href="#">За день</a></li>
+                        <li><a class="dropdown-item active" href="#">За неделю</a></li>
+                        <li><a class="dropdown-item" href="#">За месяц</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ordersChart" class="chart-dark"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4 fade-in" style="animation-delay: 0.6s">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Популярные блюда</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="dishesChart" class="chart-dark"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Последние заказы и активность -->
+<div class="row">
+    <div class="col-lg-6 mb-4 fade-in" style="animation-delay: 0.7s">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Последние заказы</h5>
+                <a href="{{ url_for('admin.orders_list') }}" class="btn btn-sm btn-neon">
+                    <i class="fas fa-list me-1"></i>Все заказы
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Официант</th>
+                                <th>Статус</th>
+                                <th>Сумма</th>
+                                <th>Время</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.waiter.username if order.waiter else 'Неизвестно' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ order.status_color }}">{{ order.status_display }}</span>
+                                </td>
+                                <td>₽{{ order.total_price }}</td>
+                                <td>{{ order.created_at.strftime('%H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if not recent_orders %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">Нет последних заказов</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4 fade-in" style="animation-delay: 0.8s">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Недавние действия</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="recent-activity-list">
+                    {% for activity in recent_activity %}
+                    <div class="recent-activity-item d-flex align-items-center">
+                        <div class="activity-icon bg-{{ activity.type }}">
+                            <i class="fas fa-{% if activity.type == 'order' %}clipboard-list{% elif activity.type == 'user' %}user-plus{% else %}calendar-alt{% endif %}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="recent-activity-content">
+                                {{ activity.content }}
+                            </div>
+                            <div class="recent-activity-time">
+                                {% if activity.time_ago < 60 %}
+                                    {{ activity.time_ago }} мин. назад
+                                {% elif activity.time_ago < 1440 %}
+                                    {{ (activity.time_ago / 60)|int }} ч. назад
+                                {% else %}
+                                    {{ (activity.time_ago / 1440)|int }} дн. назад
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not recent_activity %}
+                    <div class="p-3 text-center">
+                        <p class="mb-0 text-muted">Нет недавней активности</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Настройка графика заказов
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        const ordersData = {
+            labels: {{ chart_dates|tojson }},
+            datasets: [
+                {
+                    label: 'Количество заказов',
+                    data: {{ chart_orders|tojson }},
+                    borderColor: '#8e24aa',
+                    backgroundColor: 'rgba(142, 36, 170, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#8e24aa',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Выручка (₽)',
+                    data: {{ chart_revenue|tojson }},
+                    borderColor: '#00c853',
+                    backgroundColor: 'rgba(0, 200, 83, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#00c853',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    yAxisID: 'y1'
+                }
+            ]
+        };
+        
+        new Chart(ordersCtx, {
+            type: 'line',
+            data: ordersData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#b3b3b3',
+                            font: {
+                                family: "'Poppins', sans-serif",
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                        borderColor: 'rgba(142, 36, 170, 0.3)',
+                        borderWidth: 1,
+                        caretPadding: 10,
+                        cornerRadius: 4,
+                        displayColors: true,
+                        titleFont: {
+                            family: "'Poppins', sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            family: "'Poppins', sans-serif",
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex === 1) {
+                                    label += '₽' + context.parsed.y;
+                                } else {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(142, 36, 170, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3',
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(142, 36, 170, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3',
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            }
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            color: '#b3b3b3',
+                            font: {
+                                family: "'Poppins', sans-serif"
+                            },
+                            callback: function(value) {
+                                return '₽' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Настройка графика популярных блюд
+        const dishesCtx = document.getElementById('dishesChart').getContext('2d');
+        const dishesData = {
+            labels: [
+                {% for dish in popular_dishes %}
+                    "{{ dish.name }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                data: [
+                    {% for dish in popular_dishes %}
+                        {{ dish.total_ordered }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#9c27b0',
+                    '#7b1fa2',
+                    '#6a1b9a',
+                    '#4a148c',
+                    '#7c4dff'
+                ],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        };
+        
+        new Chart(dishesCtx, {
+            type: 'doughnut',
+            data: dishesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#b3b3b3',
+                            font: {
+                                family: "'Poppins', sans-serif",
+                                size: 12
+                            },
+                            padding: 15,
+                            boxWidth: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                        borderColor: 'rgba(142, 36, 170, 0.3)',
+                        borderWidth: 1,
+                        caretPadding: 10,
+                        cornerRadius: 4,
+                        displayColors: true,
+                        titleFont: {
+                            family: "'Poppins', sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            family: "'Poppins', sans-serif",
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + ' шт.';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 
